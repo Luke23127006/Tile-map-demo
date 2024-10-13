@@ -137,9 +137,9 @@ void Player::updateCollisionWithTile(sf::FloatRect tileBounds)
 	if (this->lastPosition.x <= tileBounds.left && this->lastPosition.x + playerBounds.width >= tileBounds.left ||
 		this->lastPosition.x >= tileBounds.left && this->lastPosition.x <= tileBounds.left + tileBounds.width)
 	{
-		if (this->lastPosition.y + playerBounds.height < tileBounds.top)
+		if (this->lastPosition.y + playerBounds.height <= tileBounds.top)
 			aboveTile = true;
-		else if (this->lastPosition.y > tileBounds.top + tileBounds.height)
+		else if (this->lastPosition.y >= tileBounds.top + tileBounds.height)
 			belowTile = true;
 	}
 
