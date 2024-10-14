@@ -5,6 +5,7 @@
 #include "Player.h"
 #include "Tile.h"
 #include "Button.h"
+#include "Enemy.h"
 
 extern Camera camera;
 
@@ -33,6 +34,7 @@ private:
 	vector<vector<Tile> > tiles;
 	vector<vector<bool> > map;
 	Button* button;
+	vector<Enemy*> enemies;
 	
 	int currentMap;
 
@@ -42,6 +44,7 @@ private:
 	void initTiles();
 	void initMap();
 	void initButton();
+	void initEnemies();
 public:
 	Game();
 	virtual ~Game();
@@ -60,9 +63,11 @@ public:
 	void updateCollision();
 	void updateMap();
 	void updateButton(sf::Vector2f mousePosView);
+	void updateEnemies(float deltaTime);
 
 	// Render
 	void render();
 	void renderMap();
 	void renderButton();
+	void renderEnemies();
 };

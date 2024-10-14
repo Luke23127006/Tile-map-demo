@@ -14,6 +14,7 @@ int main()
 		game->update(deltaTime);
 		game->render();
 	}
+	delete game;
 
 	return 0;
 }

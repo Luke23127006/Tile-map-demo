@@ -5,9 +5,9 @@ void Player::initVariables()
 	this->velocity = sf::Vector2f(0.f, 0.f);
 	this->velocityMax = sf::Vector2f(400.f, 1200.f);
 	this->acceleration = 0.f;
-	this->accelerationMax = 6000.f;
-	this->deceleration = 10000.f;
-	this->gravity = 1600.f;
+	this->accelerationMax = 800.f;
+	this->deceleration = 1600.f;
+	this->gravity = 2000.f;
 	this->jumpHeight = -800.f;
 
 	this->onGround = true;
@@ -15,7 +15,7 @@ void Player::initVariables()
 
 void Player::initHitbox()
 {
-	this->hitbox.setSize(sf::Vector2f(50.f, 50.f));
+	this->hitbox.setSize(sf::Vector2f(30.f, 50.f));
 	this->hitbox.setFillColor(sf::Color::Magenta);
 	this->hitbox.setPosition(200.f, 200.f);
 	this->lastPosition = this->hitbox.getPosition();

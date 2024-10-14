@@ -59,6 +59,10 @@ void Game::initMap()
 			{
 				this->player->setPosition(i * 50.f, j * 50.f);
 			}
+			if (mapImage.getPixel(i, j) == sf::Color(255, 127, 0, 255))
+			{
+				enemies.push_back(new Enemy(i * 50.f, j * 50.f));
+			}
 		}
 	}
 }
@@ -66,6 +70,10 @@ void Game::initMap()
 void Game::initButton()
 {
 	this->button = new Button("Play", sf::Vector2f(300, 200), sf::Vector2f(400, 400));
+}
+
+void Game::initEnemies()
+{
 }
 
 Game::Game()
@@ -76,6 +84,7 @@ Game::Game()
 	this->initTiles();
 	this->initMap();
 	this->initButton();
+	this->initEnemies();
 }
 
 Game::~Game()
@@ -83,6 +92,12 @@ Game::~Game()
 	delete this->window;
 	delete this->player;
 	delete this->button;
+
+	for (auto& e : this->enemies)
+	{
+		delete this->enemies.at(0);
+		this->enemies.erase(this->enemies.begin());
+	}
 }
 
 const bool Game::running() const
@@ -134,6 +149,7 @@ void Game::update(float deltaTime)
 		this->updateMap();
 		this->updateCollision();
 		this->updateCameraPosition(deltaTime);
+		this->updateEnemies(deltaTime);
 		break;
 	}
 }
@@ -219,6 +235,28 @@ void Game::updateButton(sf::Vector2f mousePosView)
 	}
 }
 
+void Game::updateEnemies(float deltaTime)
+{
+	for (auto& e : enemies)
+		if (e) e->update(deltaTime);
+
+	// collision and turn back
+	for (auto& e : enemies)
+	{
+		int iRange = e->getPosition().x / 50;
+		int jRange = e->getPosition().y / 50;
+
+		for (int i = max(0, iRange - 1); i < min(100, iRange + 2); i++)
+			for (int j = max(0, jRange - 1); j < min(100, jRange + 2); j++)
+			{
+				if (map[i][j] && e->getGlobalBounds().intersects(this->tiles[i][j].getGlobalBounds()))
+				{
+					e->updateCollisionWithTile(this->tiles[i][j].getGlobalBounds());
+				}
+			}
+	}
+}
+
 void Game::render()
 {
 	this->window->clear(sf::Color::White);
@@ -235,6 +273,7 @@ void Game::render()
 		this->window->setView(camera.getView(this->window->getSize()));
 		this->player->render(this->window);
 		this->renderMap();
+		this->renderEnemies();
 		break;
 	}
 
@@ -260,4 +299,10 @@ void Game::renderMap()
 void Game::renderButton()
 {
 	this->button->render(this->window);
+}
+
+void Game::renderEnemies()
+{
+	for (auto& e : enemies)
+		if (e) e->render(this->window);
 }
