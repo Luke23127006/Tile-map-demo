@@ -3,12 +3,15 @@
 void Player::initVariables()
 {
 	this->velocity = sf::Vector2f(0.f, 0.f);
-	this->velocityMax = sf::Vector2f(400.f, 1200.f);
+	this->velocityMax = sf::Vector2f(400.f, 2000.f);
 	this->acceleration = 0.f;
-	this->accelerationMax = 800.f;
-	this->deceleration = 1600.f;
-	this->gravity = 2000.f;
-	this->jumpHeight = -800.f;
+	this->accelerationMax = 1000.f;
+	this->deceleration = 1400.f;
+	this->gravity = 3000.f;
+	this->jumpHeight = -1000.f;
+
+	this->isDead = false;
+	this->deadTimer = 0.5f;
 
 	this->onGround = true;
 }
@@ -56,6 +59,11 @@ void Player::setOnGround(bool onGround)
 	this->onGround = onGround;
 }
 
+const bool Player::getIsDead() const
+{
+	return this->isDead;
+}
+
 void Player::move(const float dirX, const float dirY, float deltaTime)
 {
 	this->hitbox.move(sf::Vector2f(dirX, dirY) * deltaTime);
@@ -87,10 +95,12 @@ void Player::updateMovement(float deltaTime)
 	// update velocity.x
 	if (this->acceleration > 0.f)
 	{
+		if (this->velocity.x < 0.f) this->velocity.x += this->deceleration * deltaTime;
 		this->velocity.x = min(this->velocityMax.x, this->velocity.x + this->acceleration * deltaTime);
 	}
 	else if (this->acceleration < 0.f)
 	{
+		if (this->velocity.x > 0.f) this->velocity.x -= this->deceleration * deltaTime;
 		this->velocity.x = max(-this->velocityMax.x, this->velocity.x + this->acceleration * deltaTime);
 	}
 	else
@@ -183,12 +193,47 @@ void Player::updateCollisionWithTile(sf::FloatRect tileBounds)
 	//cout << this->hitbox.getPosition().x << '\t' << this->hitbox.getPosition().y << '\n';
 }
 
+void Player::updateCollsionWithEnemy(sf::FloatRect enemyBounds)
+{
+	bool above = false;
+	sf::FloatRect playerBounds = this->hitbox.getGlobalBounds();
+
+	if (this->lastPosition.x <= enemyBounds.left && this->lastPosition.x + playerBounds.width > enemyBounds.left ||
+		this->lastPosition.x > enemyBounds.left && this->lastPosition.x <= enemyBounds.left + enemyBounds.width)
+	{
+		if (this->lastPosition.y + this->getGlobalBounds().height < enemyBounds.top)
+		above = true;
+	}
+
+	if (above)
+	{
+		this->hitbox.setPosition(this->hitbox.getPosition().x, enemyBounds.top - playerBounds.height);
+		this->velocity.y = -800.f;
+	}
+	else
+	{
+		this->isDead = true;
+		this->velocity.x = 0.f;
+		this->velocity.y = -1000.f;
+	}
+}
+
 void Player::updateLastPosition()
 {
 	this->lastPosition = this->hitbox.getPosition();
 }
 
-void Player::render(sf::RenderTarget* target)
+void Player::updateDeadAnimation(float deltaTime)
 {
+	//this->velocity.x = 0.f;
+	this->deadTimer -= deltaTime;
+	if (this->deadTimer > 0.f) return;
+	this->velocity.y += this->gravity * deltaTime;
+	this->move(0.f, this->velocity.y, deltaTime);
+}
+
+void Player::render(sf::RenderTarget* target) const
+{
+	//if (!this->isDead)
 	target->draw(this->hitbox);
 }

@@ -15,6 +15,9 @@ private:
 	float gravity;
 	float jumpHeight;
 
+	bool isDead;
+	float deadTimer;
+
 	bool onGround;
 	sf::Vector2f lastPosition;
 
@@ -30,14 +33,18 @@ public:
 
 	void setPosition(const float x, const float y);
 	void setOnGround(bool onGround);
+	const bool getIsDead() const;
 
 	void move(const float dirX, const float dirY, float deltaTime);
 	void update(float deltaTime);
 	void updateMovement(float deltaTime);
 	void updateCollisionWithWindow(sf::Vector2u windowSize);
 	void updateCollisionWithTile(sf::FloatRect tileBounds);
+	void updateCollsionWithEnemy(sf::FloatRect enemyBounds);
 	void updateLastPosition();
 
-	void render(sf::RenderTarget* target);
+	void updateDeadAnimation(float deltaTime);
+
+	void render(sf::RenderTarget* target) const;
 };
 

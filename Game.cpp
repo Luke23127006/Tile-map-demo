@@ -80,9 +80,9 @@ Game::Game()
 {
 	this->initVariables();
 	this->initWindow();
-	this->initPlayer();
-	this->initTiles();
-	this->initMap();
+	//this->initPlayer();
+	//this->initTiles();
+	//this->initMap();
 	this->initButton();
 	this->initEnemies();
 }
@@ -145,11 +145,17 @@ void Game::update(float deltaTime)
 		this->updateButton(this->mousePosView);
 		break;
 	case GameStates::PLAYING:
-		this->player->update(deltaTime);
 		this->updateMap();
-		this->updateCollision();
-		this->updateCameraPosition(deltaTime);
+		if (!this->player->getIsDead())
+		{
+			this->player->update(deltaTime);
+			this->updateCollision();
+			this->updateCameraPosition(deltaTime);
+			this->updatePlayerCollsionWithEnemies();
+		}
+		else this->player->updateDeadAnimation(deltaTime);
 		this->updateEnemies(deltaTime);
+		this->player->updateLastPosition();
 		break;
 	}
 }
@@ -194,7 +200,6 @@ void Game::updateCollision()
 	}
 
 	//this->player->updateCollisionWithWindow(this->window->getSize());
-	this->player->updateLastPosition();
 
 	//cout << player->getPosition().x << "\t" << player->getPosition().y << endl;
 }
@@ -243,17 +248,46 @@ void Game::updateEnemies(float deltaTime)
 	// collision and turn back
 	for (auto& e : enemies)
 	{
+		e->setOnGround(false);
 		int iRange = e->getPosition().x / 50;
 		int jRange = e->getPosition().y / 50;
 
 		for (int i = max(0, iRange - 1); i < min(100, iRange + 2); i++)
 			for (int j = max(0, jRange - 1); j < min(100, jRange + 2); j++)
 			{
-				if (map[i][j] && e->getGlobalBounds().intersects(this->tiles[i][j].getGlobalBounds()))
-				{
-					e->updateCollisionWithTile(this->tiles[i][j].getGlobalBounds());
-				}
+				if (this->map[i][j]) e->updateCollisionWithTile(this->tiles[i][j].getGlobalBounds());
 			}
+	}
+
+	int counter = 0;
+	for (auto& e : enemies)
+	{
+		if (e->canDisapper())
+		{
+			delete this->enemies.at(counter);
+			enemies.erase(enemies.begin() + counter);
+			counter--;
+		}
+		counter++;
+	}
+
+	for (auto& e : enemies) e->updateLastPosition();
+}
+
+void Game::updatePlayerCollsionWithEnemies()
+{
+	if (enemies.empty()) return;
+	for (auto& e : enemies)
+	{
+		if (e->getGlobalBounds().intersects(this->player->getGlobalBounds()))
+		{
+			if (e->getIsDead()) continue;
+			this->player->updateCollsionWithEnemy(e->getGlobalBounds());
+			if (!this->player->getIsDead())
+			{
+				e->dead();
+			}
+		}
 	}
 }
 

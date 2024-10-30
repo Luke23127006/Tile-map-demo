@@ -13,6 +13,13 @@ private:
 	float accelerationMax;
 	float deceleration;
 	float gravity;
+
+	sf::Vector2f lastPosition;
+
+	bool onGround;
+
+	bool isDead;
+	float deadTimer;
 	
 	void initVariables();
 	void initHitbox();
@@ -25,13 +32,18 @@ public:
 	const sf::FloatRect getGlobalBounds() const;
 
 	void setPosition(const float x, const float y);
+	void setOnGround(bool onGround);
 
 	void move(float dirX, float dirY, float deltaTime);
 	void turnBack();
+	void dead();
+	const bool canDisapper() const;
+	const bool getIsDead() const;
 
 	void update(float deltaTime);
 	void updateCollisionWithTile(sf::FloatRect tileBounds);
+	void updateLastPosition();
 
-	void render(sf::RenderTarget* target);
+	void render(sf::RenderTarget* target) const;
 };
 

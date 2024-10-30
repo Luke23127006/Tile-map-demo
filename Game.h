@@ -64,6 +64,7 @@ public:
 	void updateMap();
 	void updateButton(sf::Vector2f mousePosView);
 	void updateEnemies(float deltaTime);
+	void updatePlayerCollsionWithEnemies();
 
 	// Render
 	void render();
